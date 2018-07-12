@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Погода</string>
+    <string name="add">Добавить</string>
+    <string name="months">Месяцы</string>
+    <string name="type">Тип</string>
+    <string name="city">Город</string>
+    <string name="settings">Настройки</string>
+    <string name="not_filled_lines">Некоторые из полей не заполнены</string>
+    <string name="click_settings_to_add_cities">Нажмите \"Настройки\", чтобы добавить город</string>
+    <string name="temperature_snack">Температура = %.2f %s</string>
+    <string-array name="seasons">
+        <item>Зима</item>
+        <item>Весна</item>
+        <item>Лето</item>
+        <item>Осень</item>
+    </string-array>
+    <string-array name="type">
+        <item>Малый</item>
+        <item>Средний</item>
+        <item>Большой</item>
+    </string-array>
+    <string-array name="months">
+        <item>Декабрь</item>
+        <item>Январь</item>
+        <item>Февраль</item>
+        <item>Март</item>
+        <item>Апрель</item>
+        <item>Май</item>
+        <item>Июнь</item>
+        <item>Июль</item>
+        <item>Август</item>
+        <item>Сентябрь</item>
+        <item>Октябрь</item>
+        <item>Ноябрь</item>
+    </string-array>
+    <string-array name="temperature">
+        <item>Цезий</item>
+        <item>Фаренгейт</item>
+        <item>Кельвин</item>
+    </string-array>
+
+
+</resources>
