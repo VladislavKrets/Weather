@@ -29,7 +29,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        initializeVariables();
+        initializeVariables(); //initializing widgets
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setSpinnerAdapters();
         addButton.setOnClickListener(this);
@@ -51,7 +51,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         firstMonthSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectMonth(position);
+                selectMonth(position); //to get away difficulties with season definition
                 String[] months = getResources().getStringArray(R.array.months);
                 firstMonth = months[position];
                 months = null;
@@ -65,7 +65,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         secondMonthSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectMonth(position);
+                selectMonth(position); //to get away difficulties with season definition
                 String[] months = getResources().getStringArray(R.array.months);
                 secondMonth = months[position];
                 months = null;
@@ -80,7 +80,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 System.out.println();
-                selectMonth(position);
+                selectMonth(position); //to get away difficulties with season definition
                 String[] months = getResources().getStringArray(R.array.months);
                 thirdMonth = months[position];
                 months = null;
@@ -159,21 +159,25 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             contentValues.put("type", type);
             Cursor c = sqLiteDatabase.query("WeatherSettings", null, "city=?",
                     new String[]{cityName}, null, null, null);
+            //checking is the city in db
             if (!c.moveToFirst())
                 sqLiteDatabase.insert("WeatherSettings", null, contentValues);
+            //if not adding it
             c.close();
 
             c = sqLiteDatabase.rawQuery("select id from WeatherSettings where city= ?", new String[]{cityName});
             contentValues = new ContentValues();
-
+            //getting id
             if (c.moveToFirst()) {
                 int cityId = c.getInt(0);
                 String[] seasons = getResources().getStringArray(R.array.seasons);
                 c.close();
                 c = sqLiteDatabase.query("SeasonSettings", null, "cityId = ? and season= ?",
                         new String[]{String.valueOf(cityId), String.valueOf(tripletPos)}, null, null, null);
+                //checking is season in db
                 if (c.moveToFirst())
                     sqLiteDatabase.delete("SeasonSettings", "cityId=? and season=?", new String[]{String.valueOf(cityId), String.valueOf(tripletPos)});
+                //if it is delete it to update
                 contentValues.put("cityId", cityId);
                 contentValues.put("season", tripletPos);
                 double average = (Double.parseDouble(firstMonthValue) + Double.parseDouble(secondMonthValue) + Double.parseDouble(thirdMonthValue)) / 3;
