@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -143,6 +144,56 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
+    private class SettingsTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            ContentValues contentValues = new ContentValues();
+            SQLiteDatabase sqLiteDatabase = sqLiteDB.getWritableDatabase();
+            contentValues.put("city", cityName);
+            contentValues.put("type", type);
+            Cursor c = sqLiteDatabase.query("WeatherSettings", null, "city=?",
+                    new String[]{cityName}, null, null, null);
+            if (!c.moveToFirst())
+                sqLiteDatabase.insert("WeatherSettings", null, contentValues);
+            c.close();
+
+            c = sqLiteDatabase.rawQuery("select id from WeatherSettings where city= ?", new String[]{cityName});
+            contentValues = new ContentValues();
+
+            if (c.moveToFirst()) {
+                int cityId = c.getInt(0);
+                String[] seasons = getResources().getStringArray(R.array.seasons);
+                c.close();
+                c = sqLiteDatabase.query("SeasonSettings", null, "cityId = ? and season= ?",
+                        new String[]{String.valueOf(cityId), String.valueOf(tripletPos)}, null, null, null);
+                if (c.moveToFirst())
+                    sqLiteDatabase.delete("SeasonSettings", "cityId=? and season=?", new String[]{String.valueOf(cityId), String.valueOf(tripletPos)});
+                contentValues.put("cityId", cityId);
+                contentValues.put("season", tripletPos);
+                double average = (Double.parseDouble(firstMonthValue) + Double.parseDouble(secondMonthValue) + Double.parseDouble(thirdMonthValue)) / 3;
+                contentValues.put("averageTemperature", average);
+                sqLiteDatabase.insert("SeasonSettings", null, contentValues);
+
+                c.close();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
+
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -155,38 +206,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                     errorTextView.setText(getResources().getString(R.string.not_filled_lines));
                 }
                 else {
-                    ContentValues contentValues = new ContentValues();
-                    SQLiteDatabase sqLiteDatabase = sqLiteDB.getWritableDatabase();
-                    contentValues.put("city", cityName);
-                    contentValues.put("type", type);
-                    Cursor c = sqLiteDatabase.query("WeatherSettings", null, "city=?",
-                            new String[]{cityName}, null, null, null);
-                    if (!c.moveToFirst())
-                        sqLiteDatabase.insert("WeatherSettings", null, contentValues);
-                    c.close();
-
-                    c = sqLiteDatabase.rawQuery("select id from WeatherSettings where city= ?", new String[]{cityName});
-                    contentValues = new ContentValues();
-
-                    if (c.moveToFirst()) {
-                        int cityId = c.getInt(0);
-                        String[] seasons = getResources().getStringArray(R.array.seasons);
-                        c.close();
-                        c = sqLiteDatabase.query("SeasonSettings", null, "cityId = ? and season= ?",
-                                new String[]{String.valueOf(cityId), String.valueOf(tripletPos)}, null, null, null);
-                        if (c.moveToFirst())
-                            sqLiteDatabase.delete("SeasonSettings", "cityId=? and season=?", new String[]{String.valueOf(cityId), String.valueOf(tripletPos)});
-                        contentValues.put("cityId", cityId);
-                        contentValues.put("season", tripletPos);
-                        double average = (Double.parseDouble(firstMonthValue) + Double.parseDouble(secondMonthValue) + Double.parseDouble(thirdMonthValue)) / 3;
-                        contentValues.put("averageTemperature", average);
-                        sqLiteDatabase.insert("SeasonSettings", null, contentValues);
-
-                        c.close();
-                    }
-                    Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+                    new SettingsTask().execute();
                 }
             }
         }
